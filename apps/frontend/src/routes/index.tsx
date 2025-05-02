@@ -1,0 +1,37 @@
+import AuthLayout from "@/components/layout/AuthLayout";
+import MainLayout from "@/components/layout/MainLayout";
+import LoginPage from "@/features/auth/pages/LoginPage";
+import SignUpPage from "@/features/auth/pages/SignUpPage";
+import HomePage from "@/pages/HomePage";
+import NotFoundPage from "@/pages/NotFoundPage";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute";
+
+const router = createBrowserRouter([
+    {
+        element: <AuthLayout />,
+        children: [
+            { path: "/login", element: <LoginPage /> },
+            { path: "/signup", element: <SignUpPage /> }
+        ]
+    },
+    {
+        element: <ProtectedRoute />,
+        children: [
+            {
+
+                element: <MainLayout />,
+                children: [
+                    { path: "/", element: <HomePage /> }
+                ]
+            }
+        ]
+    },
+    {
+        path: "*",
+        element: <NotFoundPage />
+    }
+]);
+
+export const AppRouterProvider = () => <RouterProvider router={router} />;
+

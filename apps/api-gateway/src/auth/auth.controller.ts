@@ -1,8 +1,9 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, UnauthorizedException } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConflictResponse, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AuthResponseDto } from './dto/auth.response.dto';
 import { SingupRequestDto } from './dto/signup.request.dto';
 import { LoginRequestDto } from './dto/login.request.dto';
+import { throws } from 'assert';
 
 
 @ApiTags("Auth")
@@ -16,7 +17,8 @@ export class AuthController {
     @ApiResponse({ status: HttpStatus.CREATED, description: "User created successfully", type: AuthResponseDto })
     @ApiBadRequestResponse({ description: "Invalid input data (validation failed)" })
     @ApiConflictResponse({ description: "Email already exists" })
-    signUp(@Body() signupDto: SingupRequestDto): AuthResponseDto {
+    async signUp(@Body() signupDto: SingupRequestDto): Promise<AuthResponseDto> {
+        await new Promise(resolve => setTimeout(resolve, 1400));
         return {
             token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
             user: {
@@ -33,7 +35,8 @@ export class AuthController {
     @ApiResponse({ status: HttpStatus.OK, description: "User logged in successfully", type: AuthResponseDto })
     @ApiBadRequestResponse({ description: "Invalid input data (validation failed)" })
     @ApiUnauthorizedResponse({ description: "Invalid credentials" })
-    login(@Body() loginDto: LoginRequestDto): AuthResponseDto {
+    async login(@Body() loginDto: LoginRequestDto): Promise<AuthResponseDto> {
+        await new Promise(resolve => setTimeout(resolve, 1400));
         return {
             token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
             user: {
