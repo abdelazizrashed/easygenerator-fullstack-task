@@ -1,4 +1,4 @@
-export * from "./user.types";
-export * from "./auth.types";
+export * from './user.types';
+export * from './auth.types';
 
-export type { SignUpFormData } from "./validateion";
+export type { SignUpFormData } from './validateion';

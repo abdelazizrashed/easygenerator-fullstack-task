@@ -1,7 +1,7 @@
-import { User } from "./user.types";
+import { User } from './user.types';
 
 export enum AuthTokenKeys {
-    ACCESS_TOKEN = "accessToken",
+    ACCESS_TOKEN = 'accessToken',
 }
 
 /**
@@ -11,7 +11,6 @@ export interface LoginRequestDto {
     email: string;
     password: string;
 }
-
 
 /**
  *  Data required for Signup process
