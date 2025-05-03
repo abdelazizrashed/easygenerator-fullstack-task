@@ -1,10 +1,9 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsIn, IsInt, Max, Min } from "class-validator";
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsIn, IsInt, Max, Min } from 'class-validator';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 100; // Prevent excessively large requests
-
 
 export class PaginationQueryDto {
     @ApiPropertyOptional()
@@ -17,9 +16,10 @@ export class PaginationQueryDto {
     @IsInt()
     limit: number = DEFAULT_LIMIT;
 
-
     // Getter to calculate skip easily
     get skip(): number {
-        return ((this.page ?? DEFAULT_PAGE) - 1) * (this.limit ?? DEFAULT_LIMIT);
+        return (
+            ((this.page ?? DEFAULT_PAGE) - 1) * (this.limit ?? DEFAULT_LIMIT)
+        );
     }
 }

@@ -19,6 +19,7 @@ import { RpcException } from '@nestjs/microservices';
 import { PaginationQueryDto } from '@app/common/dto/pagination-query.dto';
 import { PaginatedResponseDto } from '@app/common/dto/paginated_response.dto';
 import { PageMetaDto } from '@app/common/dto/page-meta.dto';
+import { UserWithPassDto } from '@app/common/user/dto/user-with-pass.dto';
 
 @Injectable()
 export class UsersService {
@@ -53,7 +54,9 @@ export class UsersService {
         } catch (error) {
             this.logger.error('Password hashing failed', error);
             throw new RpcException(
-                new InternalServerErrorException("Couldn't create a user record")
+                new InternalServerErrorException(
+                    "Couldn't create a user record",
+                ),
             );
         }
         const newUser = new this.userModel({
@@ -64,14 +67,14 @@ export class UsersService {
         try {
             const savedUser = await newUser.save();
             return this.mapToUserDto(savedUser);
-
         } catch (error) {
             if (error.code === 11000 && error.keyPattern?.email) {
-                throw new ConflictException('Email already exists')
+                throw new ConflictException('Email already exists');
             }
             this.logger.error('User creation failed: ', error);
-            throw new InternalServerErrorException("Couldn't create a user record");
-
+            throw new InternalServerErrorException(
+                "Couldn't create a user record",
+            );
         }
     }
 
@@ -79,38 +82,49 @@ export class UsersService {
         paginationQuery: PaginationQueryDto,
     ): Promise<PaginatedResponseDto<UserDto>> {
         try {
-
             const { page = 1, limit = 10, skip } = paginationQuery;
             const [itemCount, users] = await Promise.all([
                 this.userModel.countDocuments().exec(),
-                this.userModel.find().skip(skip).limit(limit).select("-passwordHash").lean().exec()
+                this.userModel
+                    .find()
+                    .skip(skip)
+                    .limit(limit)
+                    .select('-passwordHash')
+                    .lean()
+                    .exec(),
             ]);
             const mappedUsers = users.map((user) => this.mapToUserDto(user));
             return new PaginatedResponseDto(
                 mappedUsers,
-                new PageMetaDto(
-                    itemCount,
-                    mappedUsers.length,
-                    limit,
-                    page,
-                ),
+                new PageMetaDto(itemCount, mappedUsers.length, limit, page),
             );
         } catch (error) {
             this.logger.error('User creation failed: ', error);
-            throw new InternalServerErrorException("Couldn't create a user record");
+            throw new InternalServerErrorException(
+                "Couldn't create a user record",
+            );
         }
     }
 
     async findOne(id: number): Promise<UserDto> {
         let userDoc: UserDocument | null;
         try {
-            userDoc = await this.userModel.findById(id).select("-passwordHash").lean().exec();
+            userDoc = await this.userModel
+                .findById(id)
+                .select('-passwordHash')
+                .lean()
+                .exec();
         } catch (error) {
-            this.logger.error(`Error finding user by ID ${id}: ${error}`, error.stack);
-            if (error.name === "CastError") {
+            this.logger.error(
+                `Error finding user by ID ${id}: ${error}`,
+                error.stack,
+            );
+            if (error.name === 'CastError') {
                 throw new BadRequestException(`Invalid user ID format: ${id}`);
             }
-            throw new InternalServerErrorException(`Error finding user by ID ${id}`);
+            throw new InternalServerErrorException(
+                `Error finding user by ID ${id}`,
+            );
         }
 
         if (!userDoc) {
@@ -119,26 +133,44 @@ export class UsersService {
         return this.mapToUserDto(userDoc);
     }
 
-    async findOneByEmailForAuth(email: string): Promise<UserPersistenceModel | null> {
+    async findOneByEmailForAuth(
+        email: string,
+    ): Promise<UserWithPassDto | null> {
         try {
             const user = await this.userModel
                 .findOne({ email })
                 .select('+passwordHash')
                 .lean()
                 .exec();
-            return user; // Return raw persistence model including hash
+            if (!user) {
+                this.logger.warn(
+                    `User with Email ${email} not found during update.`,
+                );
+                throw new NotFoundException(
+                    `User with Email ${email} not found during update.`,
+                );
+            }
+            return new UserWithPassDto({
+                id: user._id.toString(),
+                name: user.name,
+                email: user.email,
+                passwordHash: user.passwordHash,
+            });
         } catch (error) {
-            throw new InternalServerErrorException('Database error during email lookup.');
+            this.logger.error(error);
+            throw new InternalServerErrorException(
+                'Database error during email lookup.',
+            );
         }
     }
 
-
     async update(id: number, updateUserDto: UpdateUserDto): Promise<UserDto> {
-
         const updateData: Partial<UserPersistenceModel> = {};
 
-        if (updateUserDto.name !== undefined) updateData.name = updateUserDto.name;
-        if (updateUserDto.email !== undefined) updateData.email = updateUserDto.email;
+        if (updateUserDto.name !== undefined)
+            updateData.name = updateUserDto.name;
+        if (updateUserDto.email !== undefined)
+            updateData.email = updateUserDto.email;
 
         if (updateUserDto.password) {
             try {
@@ -147,15 +179,19 @@ export class UsersService {
                     this.saltRounds,
                 );
             } catch (error) {
-                this.logger.error('Password hashing failed during update', error.stack);
-                throw new InternalServerErrorException("Couldn't process user update request.");
+                this.logger.error(
+                    'Password hashing failed during update',
+                    error.stack,
+                );
+                throw new InternalServerErrorException(
+                    "Couldn't process user update request.",
+                );
             }
         }
 
         if (Object.keys(updateData).length === 0) {
             return this.findOne(id);
         }
-
 
         let updatedUserDoc: UserDocument | null;
         try {
@@ -166,21 +202,34 @@ export class UsersService {
                 .exec();
         } catch (error) {
             if (error.code === 11000 && error.keyPattern?.email) {
-                this.logger.warn(`Attempt to update user ${id} with existing email: ${updateUserDto.email}`);
-                throw new ConflictException(`Email ${updateUserDto.email} is already in use.`)
+                this.logger.warn(
+                    `Attempt to update user ${id} with existing email: ${updateUserDto.email}`,
+                );
+                throw new ConflictException(
+                    `Email ${updateUserDto.email} is already in use.`,
+                );
             }
-            this.logger.error(`Failed to update user ${id}: ${error}`, error.stack);
+            this.logger.error(
+                `Failed to update user ${id}: ${error}`,
+                error.stack,
+            );
             if (error.name === 'CastError') {
-                throw new BadRequestException(`Invalid user ID format for update: ${id}`);
+                throw new BadRequestException(
+                    `Invalid user ID format for update: ${id}`,
+                );
             }
-            throw new InternalServerErrorException("Couldn't process user update request.");
+            throw new InternalServerErrorException(
+                "Couldn't process user update request.",
+            );
         }
 
         if (!updatedUserDoc) {
             this.logger.warn(`User with ID ${id} not found during update.`);
-            throw new NotFoundException(`User with ID ${id} not found during update.`);
+            throw new NotFoundException(
+                `User with ID ${id} not found during update.`,
+            );
         }
-        return this.mapToUserDto(updatedUserDoc as UserDocument)!;
+        return this.mapToUserDto(updatedUserDoc);
     }
 
     async remove(id: number) {
@@ -188,16 +237,25 @@ export class UsersService {
         try {
             result = await this.userModel.findByIdAndDelete(id).exec();
         } catch (error) {
-            this.logger.error(`Failed to delete user ${id}: ${error}`, error.stack);
+            this.logger.error(
+                `Failed to delete user ${id}: ${error}`,
+                error.stack,
+            );
             if (error.name === 'CastError') {
-                throw new BadRequestException(`Invalid user ID format for delete: ${id}`);
+                throw new BadRequestException(
+                    `Invalid user ID format for delete: ${id}`,
+                );
             }
-            throw new InternalServerErrorException("Couldn't process user delete request.");
+            throw new InternalServerErrorException(
+                "Couldn't process user delete request.",
+            );
         }
 
         if (!result) {
             this.logger.warn(`User with ID ${id} not found for deletion.`);
-            throw new NotFoundException(`User with ID ${id} not found for deletion.`);
+            throw new NotFoundException(
+                `User with ID ${id} not found for deletion.`,
+            );
         }
         this.logger.log(`User deleted successfully: ID ${id}`);
     }

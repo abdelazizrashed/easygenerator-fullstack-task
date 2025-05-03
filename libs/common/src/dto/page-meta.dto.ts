@@ -1,4 +1,4 @@
-import { ApiProduces, ApiProperty } from "@nestjs/swagger";
+import { ApiProduces, ApiProperty } from '@nestjs/swagger';
 
 export class PageMetaDto {
     @ApiProperty()
@@ -16,7 +16,12 @@ export class PageMetaDto {
     @ApiProperty()
     readonly currentPage: number;
 
-    constructor(totalItems: number, itemCount: number, itemsPerPage: number, currentPage: number) {
+    constructor(
+        totalItems: number,
+        itemCount: number,
+        itemsPerPage: number,
+        currentPage: number,
+    ) {
         this.totalItems = totalItems;
         this.itemCount = itemCount;
         this.itemsPerPage = itemsPerPage;

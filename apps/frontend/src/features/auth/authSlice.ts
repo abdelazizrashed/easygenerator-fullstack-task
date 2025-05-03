@@ -96,7 +96,9 @@ const authSlice = createSlice({
                 state.token = null;
                 state.status = AuthStatus.ERROR;
                 state.error =
-                    (action.payload as string) ?? action.error.message ?? 'Login failed';
+                    (action.payload as string) ??
+                    action.error.message ??
+                    'Login failed';
             })
 
             // **************** Register **************
@@ -115,7 +117,9 @@ const authSlice = createSlice({
                 state.token = null;
                 state.status = AuthStatus.ERROR;
                 state.error =
-                    (action.payload as string) ?? action.error.message ?? 'Signup failed';
+                    (action.payload as string) ??
+                    action.error.message ??
+                    'Signup failed';
             });
     },
 });

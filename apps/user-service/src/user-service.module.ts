@@ -19,4 +19,4 @@ import { MongooseModule } from '@nestjs/mongoose';
         UsersModule,
     ],
 })
-export class UserServiceModule { }
+export class UserServiceModule {}

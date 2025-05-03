@@ -8,7 +8,7 @@ import { PaginationQueryDto } from '@app/common/dto/pagination-query.dto';
 
 @Controller()
 export class UsersController {
-    constructor(private readonly usersService: UsersService) { }
+    constructor(private readonly usersService: UsersService) {}
 
     @MessagePattern(UserCmd.CREATE_USER)
     async create(@Payload() createUserDto: CreateUserDto) {
@@ -16,9 +16,7 @@ export class UsersController {
     }
 
     @MessagePattern(UserCmd.LIST_USER)
-    async findAll(
-        @Payload() paginationQuery: PaginationQueryDto,
-    ) {
+    async findAll(@Payload() paginationQuery: PaginationQueryDto) {
         return await this.usersService.findAll(paginationQuery);
     }
 

@@ -1,12 +1,30 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { AuthServiceService } from './auth-service.service';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { AuthCmd } from '@app/common';
+import { LoginRequestDto } from 'apps/api-gateway/src/auth/dto/login.request.dto';
+import { AuthResponseDto } from 'apps/api-gateway/src/auth/dto/auth.response.dto';
 
 @Controller()
 export class AuthServiceController {
-  constructor(private readonly authServiceService: AuthServiceService) {}
+    private readonly logger = new Logger(AuthServiceController.name);
 
-  @Get()
-  getHello(): string {
-    return this.authServiceService.getHello();
-  }
+    constructor(private readonly authService: AuthServiceService) {}
+
+    @MessagePattern(AuthCmd.VALIDATE_USER)
+    async validateUserAndLogin(
+        @Payload() loginDto: LoginRequestDto,
+    ): Promise<AuthResponseDto> {
+        this.logger.log(
+            `Received ${AuthCmd.VALIDATE_USER} for ${loginDto.email}`,
+        );
+        const validatedUser = await this.authService.validateUser(loginDto);
+        return await this.authService.login(validatedUser);
+    }
+
+    @MessagePattern(AuthCmd.VALIDATE_TOKEN)
+    async validateToken(@Payload() token: string): Promise<any> {
+        this.logger.log(`Received ${AuthCmd.VALIDATE_TOKEN}`);
+        return await this.authService.validateToken(token);
+    }
 }

@@ -18,6 +18,8 @@ async function bootstrap() {
     );
     app.useGlobalFilters(new HttpToRpcExceptionFilter());
     await app.listen();
-    logger.log(`UserService is listening on port ${process.env.USER_SERVICE_PORT}`);
+    logger.log(
+        `UserService is listening on port ${process.env.USER_SERVICE_PORT}`,
+    );
 }
 bootstrap();
