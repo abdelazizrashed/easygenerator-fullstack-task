@@ -1,6 +1,17 @@
-import { Controller, Get, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiOkResponse,
+    ApiOperation,
+    ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
@@ -11,12 +22,19 @@ export class AppController {
     }
 
     @Get('/')
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Get welcome message (Protected Route)' })
-    @ApiOkResponse({ description: 'Welcome message for authenticated users.', schema: { example: { status: 'ok', message: 'Welcome to the application' } } })
-    @ApiUnauthorizedResponse({ description: 'Unauthorized - Missing or invalid JWT' })
+    @ApiOkResponse({
+        description: 'Welcome message for authenticated users.',
+        schema: {
+            example: { status: 'ok', message: 'Welcome to the application' },
+        },
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Unauthorized - Missing or invalid JWT',
+    })
     root() {
         return {
             status: 'ok',

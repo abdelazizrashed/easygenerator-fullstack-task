@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsInt, Max, Min } from 'class-validator';
+import { IsInt, Max, Min } from 'class-validator';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;

@@ -25,7 +25,7 @@ export class AuthServiceService {
         @Inject(USER_SERVICE.token) private readonly userClient: ClientProxy,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
-    ) { }
+    ) {}
 
     async validateUser(credentials: LoginRequestDto): Promise<UserWithPassDto> {
         const { email, password } = credentials;
@@ -77,7 +77,7 @@ export class AuthServiceService {
                 user: {
                     id: user.id,
                     name: user.name,
-                    email: user.email
+                    email: user.email,
                 },
             };
         } catch (error) {

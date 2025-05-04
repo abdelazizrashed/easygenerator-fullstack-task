@@ -20,7 +20,7 @@ export class AuthService implements OnModuleInit {
     constructor(
         @Inject(USER_SERVICE.token) private readonly userClient: ClientProxy,
         @Inject(AUTH_SERVICE.token) private readonly authClient: ClientProxy,
-    ) { }
+    ) {}
 
     async onModuleInit() {
         try {

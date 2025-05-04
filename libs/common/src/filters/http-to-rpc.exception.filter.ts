@@ -11,6 +11,7 @@ import { Observable, throwError } from 'rxjs';
 @Catch()
 export class HttpToRpcExceptionFilter extends BaseRpcExceptionFilter {
     private readonly logger = new Logger(HttpToRpcExceptionFilter.name);
+
     catch(exception: any, host: ArgumentsHost): Observable<any> {
         if (exception instanceof HttpException) {
             const status = exception.getStatus();

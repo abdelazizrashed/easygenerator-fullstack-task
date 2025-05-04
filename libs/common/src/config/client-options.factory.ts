@@ -1,5 +1,4 @@
 import {
-    ClientProvider,
     ClientsProviderAsyncOptions,
     MicroserviceOptions,
     Transport,

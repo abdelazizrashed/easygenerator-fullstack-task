@@ -65,9 +65,7 @@ export class RpcToHttpExceptionFilter implements ExceptionFilter {
                     error: 'Forbidden',
                 });
                 break;
-            // Add more mappings as needed
             default:
-                // Log unmapped errors but still return a generic 500
                 this.logger.error(
                     `Unmapped RPC status ${status} received: ${message}`,
                 );
