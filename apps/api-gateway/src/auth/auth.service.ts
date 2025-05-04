@@ -38,6 +38,7 @@ export class AuthService implements OnModuleInit {
         const user = await firstValueFrom(
             this.userClient.send<UserDto>(UserCmd.CREATE_USER, signupDto).pipe(
                 timeout(this.requestTimeout),
+                catchError((err) => throwError(() => new RpcException(err))),
             ),
         );
         const authResponse = await firstValueFrom(
@@ -60,6 +61,9 @@ export class AuthService implements OnModuleInit {
                 .send<AuthResponseDto>(AuthCmd.VALIDATE_USER, loginDto)
                 .pipe(
                     timeout(this.requestTimeout),
+                    catchError((err) =>
+                        throwError(() => new RpcException(err)),
+                    ),
                 ),
         );
         return authResponse;

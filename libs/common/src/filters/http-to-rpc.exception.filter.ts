@@ -38,7 +38,7 @@ export class HttpToRpcExceptionFilter extends BaseRpcExceptionFilter {
                 'Caught non-HTTP, non-RPC exception in filter:',
                 exception,
             ); // Log the original error
-            const rpcError = {
+            const rpcError = exception.error ?? {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: 'Internal Server Error',
             };

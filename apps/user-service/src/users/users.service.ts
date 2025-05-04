@@ -136,32 +136,33 @@ export class UsersService {
     async findOneByEmailForAuth(
         email: string,
     ): Promise<UserWithPassDto | null> {
+        let user: UserDocument | null;
         try {
-            const user = await this.userModel
+            user = await this.userModel
                 .findOne({ email })
                 .select('+passwordHash')
                 .lean()
                 .exec();
-            if (!user) {
-                this.logger.warn(
-                    `User with Email ${email} not found during update.`,
-                );
-                throw new NotFoundException(
-                    `User with Email ${email} not found during update.`,
-                );
-            }
-            return new UserWithPassDto({
-                id: user._id.toString(),
-                name: user.name,
-                email: user.email,
-                passwordHash: user.passwordHash,
-            });
         } catch (error) {
             this.logger.error(error);
             throw new InternalServerErrorException(
                 'Database error during email lookup.',
             );
         }
+        if (!user) {
+            this.logger.warn(
+                `User with Email ${email} not found during update.`,
+            );
+            throw new NotFoundException(
+                `User with Email ${email} not found during update.`,
+            );
+        }
+        return new UserWithPassDto({
+            id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            passwordHash: user.passwordHash,
+        });
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<UserDto> {
