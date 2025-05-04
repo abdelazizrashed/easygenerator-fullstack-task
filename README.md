@@ -1,98 +1,186 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Full Stack Authentication Task (NestJS + React)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project implements a user authentication module (Sign Up, Sign In) using a microservice architecture with NestJS for the backend and React for the frontend.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Project Structure (Monorepo)
 
-## Description
+This repository uses a monorepo structure managed by `pnpm` workspaces.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ pnpm install
+```
+│
+├── apps/
+│   ├── api-gateway/    # NestJS App: Handles HTTP requests, basic validation, calls downstream services. Exposes API.
+│   ├── auth-service/     # NestJS Microservice: Handles authentication logic, JWT generation/validation.
+│   ├── user-service/     # NestJS Microservice: Handles user CRUD operations, MongoDB interaction.
+│   └── frontend/         # React SPA: User interface (Vite, Redux Toolkit, Tailwind, Shadcn/ui).
+└── libs/
+    └── common/           # Shared NestJS Library: Constants, DTO interfaces, helpers, filters etc.
 ```
 
-## Compile and run the project
 
-```bash
-# development
-$ pnpm run start
+## Technologies Used
 
-# watch mode
-$ pnpm run start:dev
+* **Monorepo Tooling:** PNPM Workspaces, NestJS CLI
+* **Backend Framework:** NestJS
+* **Backend Language:** TypeScript
+* **Microservice Communication:** TCP (Configurable via Env Vars)
+* **Database:** MongoDB (using MongoDB Atlas)
+* **ODM (User Service):** Mongoose (`@nestjs/mongoose`)
+* **Authentication:** JWT (`@nestjs/jwt`, `@nestjs/passport`, `passport-jwt`), Bcryptjs (Password Hashing)
+* **Configuration:** `@nestjs/config`, `.env` files
+* **API Documentation:** `@nestjs/swagger`, Swagger UI
+* **Validation:** `class-validator`, `class-transformer`
+* **Frontend Framework:** React
+* **Frontend Language:** TypeScript
+* **Frontend Bundler:** Vite
+* **Frontend State Management:** Redux Toolkit (`@reduxjs/toolkit`, `react-redux`)
+* **Frontend UI/Styling:** Tailwind CSS + Shadcn/ui
+* **Frontend Form Handling:** React Hook Form + Zod (for validation)
+* **Frontend API Client:** Axios
+* **Linting/Formatting:** ESLint, Prettier
 
-# production mode
-$ pnpm run start:prod
-```
+## Installation
 
-## Run tests
+**Prerequisites:**
 
-```bash
-# unit tests
-$ pnpm run test
+* Node.js (v18 or later recommended)
+* PNPM (v8 or later recommended: `npm install -g pnpm`)
+* Access to a MongoDB instance (MongoDB Atlas free tier is sufficient - see Configuration below)
+* Git
 
-# e2e tests
-$ pnpm run test:e2e
+**Steps:**
 
-# test coverage
-$ pnpm run test:cov
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repo-url>
+    cd easygen-fullstack-task
+    ```
+2.  **Install dependencies:**
+    Run pnpm install from the root directory. This will install dependencies for all apps and libraries and link local packages.
+    ```bash
+    pnpm install
+    ```
 
-## Deployment
+## Environment Variables Configuration
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+This project uses `.env` files for environment-specific configuration. **Crucially, `.env` files should NOT be committed to Git.** Add them to your root `.gitignore` file.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+You need to create the following `.env` files based on the examples below:
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+1.  **`apps/api-gateway/.env`**
+    ```ini
+    # Port the API Gateway listens on
+    PORT=3000
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+    # Connection details for Auth Service (where API Gateway CONNECTS)
+    AUTH_SERVICE_TRANSPORT=TCP
+    AUTH_SERVICE_HOST=localhost # Or internal host in deployment
+    AUTH_SERVICE_PORT=3002
 
-## Resources
+    # Connection details for User Service (where API Gateway CONNECTS)
+    USER_SERVICE_TRANSPORT=TCP
+    USER_SERVICE_HOST=localhost # Or internal host in deployment
+    USER_SERVICE_PORT=3001
 
-Check out a few resources that may come in handy when working with NestJS:
+    # JWT Secret (MUST MATCH auth-service)
+    JWT_SECRET=THIS_IS_A_VERY_SECRET_KEY_REPLACE_ME_32_CHARS_OR_MORE
+    ```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+2.  **`apps/auth-service/.env`**
+    ```ini
+    # Listener Config for THIS Auth Service
+    AUTH_SERVICE_LISTEN_TRANSPORT=TCP
+    AUTH_SERVICE_LISTEN_HOST=0.0.0.0 # Listen on all interfaces
+    AUTH_SERVICE_LISTEN_PORT=3002
 
-## Support
+    # JWT Configuration
+    JWT_SECRET=THIS_IS_A_VERY_SECRET_KEY_REPLACE_ME_32_CHARS_OR_MORE # MUST MATCH api-gateway
+    JWT_EXPIRATION_TIME=1h # e.g., 15m, 7d
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+    # Client Config for User Service (How Auth Service CONNECTS to User Service)
+    USER_SERVICE_TRANSPORT=TCP
+    USER_SERVICE_HOST=localhost # Or internal host in deployment
+    USER_SERVICE_PORT=3001
+    ```
 
-## Stay in touch
+3.  **`apps/user-service/.env`**
+    ```ini
+    # Listener Config for THIS User Service
+    USER_SERVICE_LISTEN_TRANSPORT=TCP
+    USER_SERVICE_LISTEN_HOST=0.0.0.0 # Listen on all interfaces
+    USER_SERVICE_LISTEN_PORT=3001
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+    # MongoDB Connection String
+    # Replace with your actual MongoDB Atlas SRV string or local URI
+    USER_SERVICE_MONGO_URI=mongodb+srv://<username>:<password>@<your-cluster-uri>/user_service_db?retryWrites=true&w=majority
 
-## License
+    # Bcrypt Salt Rounds
+    BCRYPT_SALT_ROUNDS=10
+    ```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+4.  **`apps/frontend/.env`**
+    ```ini
+    # Base URL for the API Gateway the frontend connects to
+    VITE_API_BASE_URL=http://localhost:3000
+    ```
+
+**Note on MongoDB Atlas:** You need to create a cluster, database user, and allow network access (allow `0.0.0.0/0` for local dev only, restrict IPs for production) on [MongoDB Atlas](https://cloud.mongodb.com/). Replace `<username>`, `<password>`, and `<your-cluster-uri>` in the `USER_SERVICE_MONGO_URI`. Ensure the database name (e.g., `user_service_db`) is specified in the URI.
+
+## Running the Application (Development)
+
+You need to run each backend service and the frontend application simultaneously in separate terminals. All commands should be run from the **root of the monorepo**.
+
+1.  **Start User Service:**
+    ```bash
+    pnpm run start:dev user-service
+    ```
+    *(Default listener: TCP on port 3001)*
+
+2.  **Start Auth Service:**
+    ```bash
+    pnpm run start:dev auth-service
+    ```
+    *(Default listener: TCP on port 3002)*
+
+3.  **Start API Gateway:**
+    ```bash
+    pnpm run start:dev api-gateway
+    ```
+    *(Default HTTP server: http://localhost:3000)*
+
+4.  **Start Frontend:**
+    ```bash
+    # Option 1: Using pnpm filter
+    pnpm run dev --filter frontend
+
+    # Option 2: Navigate and run
+    # cd apps/frontend
+    # pnpm run dev
+    ```
+    *(Default Vite server: http://localhost:5173 - check terminal output)*
+
+**Accessing the App:**
+
+* Frontend UI: `http://localhost:5173` (or as specified by Vite)
+* API Gateway Base: `http://localhost:3000`
+* API Documentation (Swagger): `http://localhost:3000/docs`
+
+## API Documentation
+
+Interactive API documentation is generated using Swagger UI and is available at the `/docs` endpoint of the running API Gateway (e.g., `http://localhost:3000/docs`).
+
+## TODO / Future Improvements
+
+This implementation provides the core functionality but can be improved, especially regarding security and production readiness:
+
+-   [ ] **Rate Limiting:** Implement rate limiting on the API Gateway (especially auth endpoints) using `@nestjs/throttler` to prevent brute-force and DoS attacks.
+-   [ ] **Frontend JWT Storage:** Replace `localStorage` for JWT storage with a more secure method (e.g., in-memory storage with HttpOnly refresh token cookies) to mitigate XSS risks.
+-   [ ] **Security Headers:** Add standard security headers to the API Gateway using `helmet`.
+-   [ ] **CORS Configuration:** Configure CORS more strictly in the API Gateway for production environments (specify allowed origins).
+-   [ ] **Token Invalidation:** Implement server-side token invalidation (e.g., a blacklist using Redis) if immediate logout or session revocation is required (helps mitigate token replay if compromised before expiry).
+-   [ ] **Refine DTOs:** Move validation and Swagger decorators from shared DTOs (`@app/common`) into service-specific DTOs (primarily in `api-gateway`) using shared interfaces for the data contract. Create custom DTOs per specific request/response for more precise validation and documentation.
+-   [ ] **Logging:** Implement structured, contextual logging (e.g., add request/trace IDs) and remove/scrub any logs that might leak sensitive data in production. Integrate with a central logging platform.
+-   [ ] **TSDocs:** Add comprehensive TSDoc comments to services, controllers, DTOs, and complex functions for better code documentation.
+-   [ ] **Testing:** Add comprehensive unit, integration, and e2e tests for all services and the frontend.
+-   [ ] **Secrets Management:** Implement a proper secrets management solution for production environments (e.g., Vault, AWS Secrets Manager, K8s Secrets).
+-   [ ] **Internal Auth:** Secure communication between microservices (e.g., using mutual TLS, API keys, or a more advanced service mesh pattern).

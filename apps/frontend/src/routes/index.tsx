@@ -2,10 +2,10 @@ import AuthLayout from "@/components/layout/AuthLayout";
 import MainLayout from "@/components/layout/MainLayout";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import SignUpPage from "@/features/auth/pages/SignUpPage";
-import HomePage from "@/pages/HomePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
+import HomePage from "@/features/home/pages/HomePage";
 
 const router = createBrowserRouter([
     {

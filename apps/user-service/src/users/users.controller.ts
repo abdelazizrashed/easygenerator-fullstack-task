@@ -21,7 +21,7 @@ export class UsersController {
     }
 
     @MessagePattern(UserCmd.GET_USER)
-    async findOne(@Payload() id: number) {
+    async findOne(@Payload() id: string) {
         return await this.usersService.findOne(id);
     }
 

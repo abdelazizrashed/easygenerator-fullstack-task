@@ -93,7 +93,7 @@ export class UsersService {
                     .lean()
                     .exec(),
             ]);
-            const mappedUsers = users.map((user) => this.mapToUserDto(user));
+            const mappedUsers = users.map((user: UserDocument) => this.mapToUserDto(user));
             return new PaginatedResponseDto(
                 mappedUsers,
                 new PageMetaDto(itemCount, mappedUsers.length, limit, page),
@@ -106,7 +106,7 @@ export class UsersService {
         }
     }
 
-    async findOne(id: number): Promise<UserDto> {
+    async findOne(id: string): Promise<UserDto> {
         let userDoc: UserDocument | null;
         try {
             userDoc = await this.userModel
@@ -116,7 +116,7 @@ export class UsersService {
                 .exec();
         } catch (error) {
             this.logger.error(
-                `Error finding user by ID ${id}: ${error}`,
+                `Error finding user by ID ${JSON.stringify(id)}: ${error}`,
                 error.stack,
             );
             if (error.name === 'CastError') {

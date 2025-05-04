@@ -77,7 +77,6 @@ const authSlice = createSlice({
             state.status = AuthStatus.IDLE;
         },
     },
-    // Async thunks
     extraReducers: (builder) => {
         builder
             // **************** Login **************

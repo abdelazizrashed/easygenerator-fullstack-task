@@ -15,9 +15,6 @@ export class AuthServiceController {
     async validateUserAndLogin(
         @Payload() loginDto: LoginRequestDto,
     ): Promise<AuthResponseDto> {
-        this.logger.log(
-            `Received ${AuthCmd.VALIDATE_USER} for ${loginDto.email}`,
-        );
         const validatedUser = await this.authService.validateUser(loginDto);
         return await this.authService.login(validatedUser);
     }
